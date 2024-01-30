@@ -52,7 +52,9 @@ class MainApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => LayoutCubit()..getUserData(),
+          create: (context) => LayoutCubit()
+            ..getUserData()
+            ..getPosts(),
         )
       ],
       child: ScreenUtilInit(

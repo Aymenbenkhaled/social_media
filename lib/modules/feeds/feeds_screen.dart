@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:socialapp/layout/cubit/cubit.dart';
+import 'package:socialapp/layout/cubit/states.dart';
+import 'package:socialapp/models/post_model.dart';
 import 'package:socialapp/shared/style/colors.dart';
 
 class FeedScreen extends StatelessWidget {
@@ -6,64 +10,80 @@ class FeedScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Card(
-              elevation: 5,
-              margin: EdgeInsets.all(8),
-              clipBehavior: Clip.antiAliasWithSaveLayer,
-              child: Stack(
-                alignment: AlignmentDirectional.centerStart,
-                children: [
-                  Image(
-                    image: AssetImage('assets/images/image1.jpg'),
+    return BlocConsumer<LayoutCubit, LayoutStates>(
+      listener: (context, state) {},
+      builder: (context, state) {
+        var cubit = LayoutCubit.get(context);
+        return (cubit.posts != [])
+            ? Expanded(
+                child: SingleChildScrollView(
+                  physics: const BouncingScrollPhysics(),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Card(
+                        elevation: 5,
+                        margin:
+                            EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                        clipBehavior: Clip.antiAliasWithSaveLayer,
+                        child: Stack(
+                          alignment: AlignmentDirectional.centerStart,
+                          children: [
+                            Image(
+                              image: AssetImage('assets/images/image1.jpg'),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(left: 10),
+                              child: Text(
+                                'Communicate with freinds',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      ListView.separated(
+                        scrollDirection: Axis.vertical,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemBuilder: (context, index) =>
+                            buildPostItem(context, cubit.posts[index], index),
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 13),
+                        itemCount: cubit.posts.length,
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      )
+                    ],
                   ),
-                  Padding(
-                    padding: EdgeInsets.only(left: 10),
-                    child: Text(
-                      'Communicate with freinds',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            ListView.separated(
-              scrollDirection: Axis.vertical,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemBuilder: (context, index) => buildPostItem(context),
-              separatorBuilder: (context, index) => const SizedBox(height: 10),
-              itemCount: 5,
-            ),
-            const SizedBox(
-              height: 10,
-            )
-          ],
-        ),
-      ),
+                ),
+              )
+            : const Center(
+                child: CircularProgressIndicator(
+                  color: defaultColor,
+                ),
+              );
+      },
     );
   }
 
-  Widget buildPostItem(context) {
+  Widget buildPostItem(context, PostModel post, int index) {
     return Card(
-      surfaceTintColor: Colors.white,
+      surfaceTintColor: Colors.brown.shade200,
       elevation: 5,
       margin: const EdgeInsets.symmetric(horizontal: 8),
       clipBehavior: Clip.antiAliasWithSaveLayer,
       child: Padding(
         padding: const EdgeInsets.all(10.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                const CircleAvatar(
+                CircleAvatar(
                   radius: 30,
-                  backgroundImage: AssetImage('assets/images/image2.jpg'),
+                  backgroundImage: NetworkImage('${post.image}'),
                 ),
                 const SizedBox(
                   width: 10,
@@ -72,20 +92,20 @@ class FeedScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Row(
+                      Row(
                         children: [
                           Text(
-                            'Benkhaled Aymenn',
+                            '${post.name}',
                             maxLines: 1,
-                            style: TextStyle(
+                            style: const TextStyle(
                               height: 1.5,
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             width: 5,
                           ),
-                          Icon(
+                          const Icon(
                             Icons.check_circle,
                             size: 18,
                             color: Colors.blueAccent,
@@ -93,7 +113,7 @@ class FeedScreen extends StatelessWidget {
                         ],
                       ),
                       Text(
-                        'Fab 07, 2023 at 10:23',
+                        '${post.dateTime}',
                         style: Theme.of(context)
                             .textTheme
                             .bodySmall! //caption
@@ -106,7 +126,9 @@ class FeedScreen extends StatelessWidget {
                   width: 15,
                 ),
                 IconButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    // print(LayoutCubit.get(context).postsIds[index]);
+                  },
                   icon: const Icon(
                     Icons.more_horiz_outlined,
                     size: 25,
@@ -119,15 +141,15 @@ class FeedScreen extends StatelessWidget {
               color: Colors.grey[300],
               thickness: 1,
             ),
-            const Text(
-              overflow: TextOverflow.clip,
-              style: TextStyle(fontSize: 13, height: 1.3),
-              'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.',
-            ),
+            Text(
+                overflow: TextOverflow.clip,
+                style: const TextStyle(fontSize: 13, height: 1.3),
+                '${post.text}'),
+            // if(post.)
             Padding(
               padding: const EdgeInsets.only(
                 top: 5,
-                bottom: 10,
+                // bottom: 10,
               ),
               child: SizedBox(
                 width: double.infinity,
@@ -230,17 +252,21 @@ class FeedScreen extends StatelessWidget {
                 ),
               ),
             ),
-            Container(
-              height: 150,
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.all(Radius.circular(4)),
-                image: DecorationImage(
-                  image: AssetImage('assets/images/image2.jpg'),
-                  fit: BoxFit.cover,
+            if (post.postImage != '')
+              Padding(
+                padding: const EdgeInsets.only(top: 10.0),
+                child: Container(
+                  height: 150,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: const BorderRadius.all(Radius.circular(4)),
+                    image: DecorationImage(
+                      image: NetworkImage('${post.postImage}'),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
               ),
-            ),
             Padding(
               padding: const EdgeInsets.only(top: 5.0),
               child: Row(
@@ -260,7 +286,7 @@ class FeedScreen extends StatelessWidget {
                               width: 5,
                             ),
                             Text(
-                              '103',
+                              '${LayoutCubit.get(context).likes[index]}',
                               style: Theme.of(context).textTheme.bodySmall,
                             ),
                           ],
@@ -313,10 +339,10 @@ class FeedScreen extends StatelessWidget {
                       onTap: () {},
                       child: Row(
                         children: [
-                          const CircleAvatar(
+                          CircleAvatar(
                             radius: 20,
-                            backgroundImage:
-                                AssetImage('assets/images/image2.jpg'),
+                            backgroundImage: NetworkImage(
+                                '${LayoutCubit.get(context).userModel!.image}'),
                           ),
                           const SizedBox(
                             width: 10,
@@ -333,7 +359,10 @@ class FeedScreen extends StatelessWidget {
                     ),
                   ),
                   InkWell(
-                    onTap: () {},
+                    onTap: () {
+                      LayoutCubit.get(context)
+                          .likePost(LayoutCubit.get(context).postsIds[index]);
+                    },
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: 5),
                       child: Row(

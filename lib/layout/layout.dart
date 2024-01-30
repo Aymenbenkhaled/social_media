@@ -78,7 +78,10 @@ class Layout extends StatelessWidget {
                     cubit.screens[cubit.index],
                   ],
                 )
-              : const Center(child: CircularProgressIndicator()),
+              : const Center(
+                  child: CircularProgressIndicator(
+                  color: defaultColor,
+                )),
           bottomNavigationBar: BottomNavigationBar(
             onTap: (value) {
               cubit.ChangeButtomNav(value);

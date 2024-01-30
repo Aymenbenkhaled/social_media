@@ -309,4 +309,37 @@ class LayoutCubit extends Cubit<LayoutStates> {
     postImage = null;
     emit(LayoutdeletePostImageState());
   }
+
+  List<PostModel> posts = [];
+  List<String> postsIds = [];
+  List<int> likes = [];
+
+  void getPosts() {
+    emit(LayoutGetPostsLoadingState());
+    FirebaseFirestore.instance.collection('posts').get().then((value) {
+      value.docs.forEach((element) {
+        element.reference.collection('likes').get().then((value) {
+          likes.add(value.docs.length);
+          postsIds.add(element.id);
+          posts.add(PostModel.fromJson(element.data()));
+          emit(LayoutGetPostsSuccesState());
+        }).catchError((onError) {});
+      });
+    }).catchError((onError) {
+      emit(LayoutGetPostsErrorState(onError));
+    });
+  }
+
+  void likePost(String postId) {
+    FirebaseFirestore.instance
+        .collection('posts')
+        .doc(postId)
+        .collection('likes')
+        .doc(userModel!.uId)
+        .set({'like': true}).then((value) {
+      emit(LayoutLikePostSuccesState());
+    }).catchError((onError) {
+      emit(LayoutLikePostErrorState());
+    });
+  }
 }

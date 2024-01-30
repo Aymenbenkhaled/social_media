@@ -11,6 +11,15 @@ class LayoutGetUserErrorState extends LayoutStates {
   LayoutGetUserErrorState(this.error);
 }
 
+class LayoutGetPostsLoadingState extends LayoutStates {}
+
+class LayoutGetPostsSuccesState extends LayoutStates {}
+
+class LayoutGetPostsErrorState extends LayoutStates {
+  final String error;
+  LayoutGetPostsErrorState(this.error);
+}
+
 class LayoutChangeButtomNavState extends LayoutStates {}
 
 class LayoutChangeButtomNavAddPostState extends LayoutStates {}
@@ -38,4 +47,9 @@ class LayoutUserUpdateErrorState extends LayoutStates {}
 class LayoutCreatePostLoadingState extends LayoutStates {}
 
 class LayoutCreatePostErrorState extends LayoutStates {}
+
 class LayoutdeletePostImageState extends LayoutStates {}
+
+class LayoutLikePostSuccesState extends LayoutStates {}
+
+class LayoutLikePostErrorState extends LayoutStates {}
