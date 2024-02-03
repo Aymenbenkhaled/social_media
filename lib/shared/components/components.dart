@@ -61,8 +61,7 @@ Widget defaultFormField(
         validator: validate,
         obscureText: obscureText,
         onTap: onTap,
-        cursorHeight: cursorHeight,
-        
+        cursorHeight: cursorHeight,       
         decoration: InputDecoration(
           errorStyle: const TextStyle(fontSize: 9, height: .3),
           enabledBorder: enabledBorder,

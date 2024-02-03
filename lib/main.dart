@@ -54,7 +54,8 @@ class MainApp extends StatelessWidget {
         BlocProvider(
           create: (context) => LayoutCubit()
             ..getUserData()
-            ..getPosts(),
+            ..getPosts()
+            ..getAllUsers(),
         )
       ],
       child: ScreenUtilInit(
