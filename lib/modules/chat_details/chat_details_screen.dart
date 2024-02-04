@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:grouped_list/grouped_list.dart';
+import 'package:intl/intl.dart';
 import 'package:socialapp/layout/cubit/cubit.dart';
 import 'package:socialapp/layout/cubit/states.dart';
 import 'package:socialapp/models/messages_model.dart';
@@ -14,6 +17,7 @@ class ChatDetailsScreen extends StatelessWidget {
 
   ChatDetailsScreen({super.key, required this.user});
   var textController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -48,20 +52,74 @@ class ChatDetailsScreen extends StatelessWidget {
                       child: Column(
                         children: [
                           Expanded(
-                              child: ListView.separated(
-                            itemBuilder: (context, index) {
-                              var message =
-                                  LayoutCubit.get(context).messages[index];
-                              if (message.senderId ==
-                                  LayoutCubit.get(context).userModel!.uId) {
-                                return buildMyMessageItem(message);
-                              }
-                              return buildMessageItem(message);
-                            },
-                            separatorBuilder: (context, index) =>
-                                const SizedBox(height: 10),
-                            itemCount: LayoutCubit.get(context).messages.length,
-                          )),
+                            child: GroupedListView<MessagesModel, DateTime>(
+                                controller: _scrollController,
+                                reverse: true,
+                                separator: const SizedBox(height: 10),
+                                order: GroupedListOrder.DESC,
+                                padding: const EdgeInsets.all(10),
+                                elements: LayoutCubit.get(context).messages,
+                                groupBy: (msg) {
+                                  return DateTime.parse(msg.dateTime!).subtract(
+                                    Duration(
+                                      hours: DateTime.parse(msg.dateTime!).hour,
+                                      minutes:
+                                          DateTime.parse(msg.dateTime!).minute,
+                                      seconds:
+                                          DateTime.parse(msg.dateTime!).second,
+                                      milliseconds:
+                                          DateTime.parse(msg.dateTime!)
+                                              .millisecond,
+                                      microseconds:
+                                          DateTime.parse(msg.dateTime!)
+                                              .microsecond,
+                                    ),
+                                  );
+                                },
+                                groupHeaderBuilder: (msg) {
+                                  DateTime groupDate =
+                                      DateTime.parse(msg.dateTime!);
+                                  String formattedDate =
+                                      DateFormat.yMMMd().format(groupDate);
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 10),
+                                    child: Center(
+                                        child: Text(
+                                      formattedDate,
+                                      // DateFormat.yMMMd().format(msg.date),
+                                      style: TextStyle(
+                                          color: Colors.grey[400],
+                                          fontSize: 12.sp),
+                                    )),
+                                  );
+                                },
+                                itemBuilder: (context, msg) {
+                                  // var message =
+                                  //   LayoutCubit.get(context).messages[index];
+                                  if (msg.senderId ==
+                                      LayoutCubit.get(context).userModel!.uId) {
+                                    return buildMyMessageItem(msg);
+                                  }
+                                  return buildMessageItem(msg);
+                                }),
+
+                            // ListView.separated(
+                            //   itemBuilder: (context, index) {
+                            //     var message =
+                            //         LayoutCubit.get(context).messages[index];
+                            //     if (message.senderId ==
+                            //         LayoutCubit.get(context).userModel!.uId) {
+                            //       return buildMyMessageItem(message);
+                            //     }
+                            //     return buildMessageItem(message);
+                            //   },
+                            //   separatorBuilder: (context, index) =>
+                            //       const SizedBox(height: 10),
+                            //   itemCount:
+                            //       LayoutCubit.get(context).messages.length,
+                            // ),
+                          ),
                           Container(
                             clipBehavior: Clip.antiAliasWithSaveLayer,
                             decoration: BoxDecoration(
@@ -122,6 +180,7 @@ class ChatDetailsScreen extends StatelessWidget {
                                         text: textController.text,
                                         recieverId: user.uId,
                                         dateTame: DateTime.now().toString(),
+                                        controller:textController,
                                       );
                                     },
                                     color: defaultColor,

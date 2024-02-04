@@ -29,6 +29,7 @@ class LayoutCubit extends Cubit<LayoutStates> {
     FirebaseFirestore.instance.collection('users').doc(uId).get().then(
       (value) {
         userModel = UserModel.fromJson(value.data()!);
+        getAllUsers();
         emit(LayoutGetUserSuccesState());
       },
     ).catchError((onError) {
@@ -362,22 +363,25 @@ class LayoutCubit extends Cubit<LayoutStates> {
         });
         emit(LayoutGetAllUsersSuccesState());
       }).catchError((onError) {
+        print(' errrrrrrrrrrrr $onError');
         emit(LayoutGetAllUsersErrorState(onError));
       });
     }
   }
 
-  void sendMessage({
-    required text,
-    required recieverId,
-    required dateTame,
-  }) {
+  void sendMessage(
+      {required text,
+      required recieverId,
+      required dateTame,
+      required controller}) {
     MessagesModel messagesModel = MessagesModel(
       senderId: userModel!.uId,
       recieverId: recieverId,
       dateTime: dateTame,
       text: text,
     );
+
+    controller.clear();
     FirebaseFirestore.instance
         .collection('users')
         .doc(userModel!.uId)

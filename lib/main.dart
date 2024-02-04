@@ -1,17 +1,24 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:socialapp/firebase_options.dart';
 import 'package:socialapp/layout/cubit/cubit.dart';
 import 'package:socialapp/layout/cubit/states.dart';
 import 'package:socialapp/layout/layout.dart';
 import 'package:socialapp/modules/login/login_screen.dart';
 import 'package:socialapp/shared/bloc_observer.dart';
+import 'package:socialapp/shared/components/components.dart';
 import 'package:socialapp/shared/components/constants.dart';
 import 'package:socialapp/shared/network/local/cache_helper.dart';
 import 'package:socialapp/shared/style/themes.dart';
+
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  print("Handling a background message: ${message.data.toString()}");
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +28,19 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  var token = await FirebaseMessaging.instance.getToken();
+  print(token);
+  FirebaseMessaging.onMessage.listen((event) {
+    print('app opened ${event.data.toString()}');
+  });
+
+  FirebaseMessaging.onMessageOpenedApp.listen((event) {
+    print('app opened background ${event}');
+    print('app opened background ${event.data.toString()}');
+  });
+
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
   Widget widget;
   // CacheHelper.removeData(key: 'uId');
@@ -54,8 +74,8 @@ class MainApp extends StatelessWidget {
         BlocProvider(
           create: (context) => LayoutCubit()
             ..getUserData()
-            ..getPosts()
-            ..getAllUsers(),
+            ..getPosts(),
+          // ..getAllUsers(),
         )
       ],
       child: ScreenUtilInit(
